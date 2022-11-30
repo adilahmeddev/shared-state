@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: serverinst
+spec:
+  replicas: 3
+  backoffLimit: 0
+  selector:
+    matchLabels:
+      app: serverinst
+  template:
+    restartPolicy: Never
+    metadata:
+      labels:
+        app: serverinst
+    spec:
+      containers:
+        - name: serverinstname
+          image: serverinst
+          ports:
+            - containerPort: 7070
+          imagePullPolicy: IfNotPresent
+          workingDir: /our-code
+          args: [ "./build/main" ]
+          resources:
+            requests:
+              memory: 100M
+              cpu: 100m
+#          readinessProbe:
+#            httpGet:
+#              port: 7070
+#              path: '/hello'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  selector:
+    app: serverinst
+  ports:
+    - protocol: TCP
+      port: 7070
+      targetPort: 7070
